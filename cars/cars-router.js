@@ -2,6 +2,8 @@ const express = require('express');
 
 const db = require('../data/dbConfig');
 
+const Cars = require('./carDb')
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -27,11 +29,37 @@ router.get('/:id', (req, res) => {
     })
 });
 
+// router.get('/:id/sales', (req, res) => {
+//     console.log(req.body)
+//     const { id } = req.params;
+//     db('sales')
+//     .where({ id })
+//     .then(sale => {
+//       res.status(200).json(sale);
+//     })
+//     .catch(err => {
+//       res.status(500).json({ errorMessage: 'error retrieving sales'})
+//     })
+// });
+
+// router.get("/sales/:id", (req, res) => {
+//     const { id } = req.params;
+//     Cars
+//       .getCarSales(id)
+//       .then(carsposts => {
+//         res.status(200).json(carsposts);
+//       })
+//       .catch(err => {
+//         console.log(err);
+//         res.status(500).json({ errormessage: "error getting all sales by car id" });
+//       });
+// });
+
 router.post('/', (req, res) => {
     db('cars')
     .insert(req.body)
     .then(ids => {
-        db('cars')
+        Cars('cars')
         .where({ id: ids[0] })
         .then(newcar => {
             res.status(201).json(newcar)
