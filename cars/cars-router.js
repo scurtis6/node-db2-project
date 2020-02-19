@@ -2,6 +2,7 @@ const express = require('express');
 
 const db = require('../data/dbConfig');
 
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -57,13 +58,14 @@ router.post('/', (req, res) => {
     db('cars')
     .insert(req.body)
     .then(ids => {
-        Cars('cars')
+        db('cars')
         .where({ id: ids[0] })
         .then(newcar => {
             res.status(201).json(newcar)
         })
     })
     .catch(err => {
+        console.log(err)
         res.status(500).json({ error: 'Failed to add car data' })
     })
 });
