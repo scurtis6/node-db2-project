@@ -1,12 +1,12 @@
 const express = require('express');
 
-const Sales = require('../data/dbConfig');
+const db = require('../data/dbConfig');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
     console.log(req.body)
-    Sales('sales')
+    db('sales')
     .then(sales => {
         res.json(sales)
         console.log(sales)
@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const { id } = req.params;
-    Sales('sales')
+    db('sales')
     .where({ id })
     .first()
     .then(sale => {
@@ -30,7 +30,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-    Sales('sales')
+    db('sales')
     .insert(req.body)
     .then(ids => {
         Sales('sales')
@@ -47,7 +47,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
     const id = req.params.id
     const changes = req.body
-    Sales('sales')
+    db('sales')
     .where({ id })
     .update(changes)
     .then(sale => {
@@ -61,7 +61,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const { id } = req.params
-    Sales('sales')
+    db('sales')
     .where({ id })
     .del()
     .then(del => {

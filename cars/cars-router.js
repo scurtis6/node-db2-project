@@ -1,12 +1,12 @@
 const express = require('express');
 
-const db = require('../data/dbConfig');
-
+const Cars = require('./cars-model')
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    db('cars')
+    // db('cars')
+    Cars.find()
     .then(cars => {
         res.json(cars)
     })
@@ -17,8 +17,9 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
     const { id } = req.params;
-    db('cars')
-    .where({ id })
+    // db('cars')
+    // .where({ id })
+    Cars.findById(id)
     .first()
     .then(car => {
         res.json(car)
@@ -29,40 +30,34 @@ router.get('/:id', (req, res) => {
 });
 
 router.get('/:id/sales', (req, res) => {
-    db('sales as s')
-    .join('cars as c', 's.car_id', 'c.id')
-    .select('s.text', 'c.id')
-    .where({ car_id: req.params.id })
+    // db('sales as s')
+    // .join('cars as c', 's.car_id', 'c.id')
+    // .select('s.text', 'c.id')
+    // .where({ car_id: req.params.id })
+    const { id } = req.params;
+
+    Cars.findSales(id)
     .then(sale => {
-      res.status(200).json(sale);
+        if(sale.length) {
+            res.json(sale);
+        } else {
+            res.status(404).json({ errorMessage: 'Could not find sales for this ID' })
+        }
     })
     .catch(err => {
       res.status(500).json({ errorMessage: 'error retrieving sales'})
     })
 });
 
-// router.get("/sales/:id", (req, res) => {
-//     const { id } = req.params;
-//     Cars
-//       .getCarSales(id)
-//       .then(carsposts => {
-//         res.status(200).json(carsposts);
-//       })
-//       .catch(err => {
-//         console.log(err);
-//         res.status(500).json({ errormessage: "error getting all sales by car id" });
-//       });
-// });
-
 router.post('/', (req, res) => {
-    db('cars')
-    .insert(req.body)
-    .then(ids => {
-        db('cars')
-        .where({ id: ids[0] })
-        .then(newcar => {
-            res.status(201).json(newcar)
-        })
+    // db('cars')
+    // .insert(req.body)
+    // .then(ids => {
+    //     db('cars')
+    //     .where({ id: ids[0] })
+    Cars.add(req.body)
+    .then(newcar => {
+        res.status(201).json(newcar)
     })
     .catch(err => {
         console.log(err)
@@ -71,13 +66,20 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-    const id = req.params.id
+    const { id } = req.params
     const changes = req.body
-    db('cars')
-    .where({ id })
-    .update(changes)
+    // db('cars')
+    // .where({ id })
+    Cars.findById(id)
     .then(car => {
-        res.status(200).json(car)
+        if (car) {
+            Cars.update(changes, id)
+            .then(updated => {
+                res.json(car)
+            })
+        } else {
+            res.status(404).json({ error: 'Failed to update car data' })
+        }
     })
     .catch(err => {
         console.log(err)
@@ -87,11 +89,16 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
     const { id } = req.params
-    db('cars')
-    .where({ id })
-    .del()
+    // db('cars')
+    // .where({ id })
+    // .del()
+    Cars.remove(id)
     .then(del => {
-        res.status(200).json(del)
+        if (del) {
+            res.json({ removed: del });
+    } else {
+      res.status(404).json({ message: 'Could not find car with given id' });
+        }
     })
     .catch(err => {
         res.status(500).json({ error: 'Failed to remove the car' })
